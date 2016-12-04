@@ -10,9 +10,9 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "username": "jntakpe",
-      "firstname": "Jocelyn",
-      "lastname": "N'TAKPÉ",
+      "login": "jntakpe",
+      "prenom": "Jocelyn",
+      "nom": "N'TAKPÉ",
       "mandats": [
         "jntakpe"
       ]
