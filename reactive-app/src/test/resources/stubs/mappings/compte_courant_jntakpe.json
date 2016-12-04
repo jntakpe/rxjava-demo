@@ -13,8 +13,8 @@
       {
         "iban": "FR0000000000000000000000001",
         "devise": "EUR",
-        "solde": "1500.00",
-        "encoursCB": "900.00",
+        "solde": 1500.00,
+        "encoursCB": 900.00,
         "dateEncours": "2016-12-12"
       }
     ]
