@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/clients/jntakpe"
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 50,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "username": "jntakpe",
+      "firstname": "Jocelyn",
+      "lastname": "N'TAKPÉ",
+      "mandats": [
+        "jntakpe"
+      ]
+    }
+  }
+}

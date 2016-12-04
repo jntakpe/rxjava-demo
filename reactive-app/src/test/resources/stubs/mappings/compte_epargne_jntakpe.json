@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/compteepargne/jntakpe"
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      {
+        "iban": "FR0000000000000000000000002",
+        "number": "002",
+        "devise": "EUR",
+        "solde": "10000.00"
+      }
+    ]
+  }
+}
