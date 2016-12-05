@@ -1,4 +1,4 @@
-package com.github.jntakpe.reactiveapp.domain;
+package com.github.jntakpe.reactiveapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
