@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/clients/noacc"
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 50,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "login": "noacc",
+      "prenom": "Pas de",
+      "nom": "COMPTE",
+      "mandats": [
+        "noacc"
+      ]
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "url": "/compteepargne/jntakpe"
+    "url": "/comptecourant/noacc"
   },
   "response": {
     "status": 200,
@@ -10,11 +10,6 @@
       "Content-Type": "application/json"
     },
     "jsonBody": [
-      {
-        "iban": "FR0000000000000000000000002",
-        "devise": "EUR",
-        "solde": 10000.00
-      }
     ]
   }
 }

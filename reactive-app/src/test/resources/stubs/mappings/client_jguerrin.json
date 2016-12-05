@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/clients/jguerrin"
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 50,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "login": "jguerrin",
+      "prenom": "Julien",
+      "nom": "GUERRIN",
+      "mandats": [
+        "jguerrin",
+        "aguerrin"
+      ]
+    }
+  }
+}

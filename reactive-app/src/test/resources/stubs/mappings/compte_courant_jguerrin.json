@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "url": "/compteepargne/jntakpe"
+    "url": "/comptecourant/jguerrin"
   },
   "response": {
     "status": 200,
@@ -11,9 +11,11 @@
     },
     "jsonBody": [
       {
-        "iban": "FR0000000000000000000000002",
+        "iban": "FR1000000000000000000000001",
         "devise": "EUR",
-        "solde": 10000.00
+        "solde": 3000.00,
+        "encoursCB": 1300.00,
+        "dateEncours": "2016-12-12"
       }
     ]
   }
