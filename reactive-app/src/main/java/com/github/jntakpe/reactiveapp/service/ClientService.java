@@ -1,11 +1,15 @@
 package com.github.jntakpe.reactiveapp.service;
 
+import com.github.jntakpe.reactiveapp.domain.Client;
+import com.github.jntakpe.reactiveapp.domain.Compte;
+import com.github.jntakpe.reactiveapp.exceptions.ClientNotFoundException;
 import com.github.jntakpe.reactiveapp.repository.ClientRepository;
 import com.github.jntakpe.reactiveapp.repository.CompteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
 
@@ -39,8 +43,22 @@ public class ClientService {
      */
     public BigDecimal soldeTotalByLogin(String login) {
         LOGGER.info("Calcul du solde total du client {}", login);
-        // TODO to implement
-        return null;
+        Client client;
+        try {
+            client = clientRepository.findByLogin(login);
+        } catch (HttpClientErrorException e) {
+            throw new ClientNotFoundException(String.format("Impossible de trouver le client %s", login));
+        }
+        BigDecimal balance = BigDecimal.ZERO;
+        for (String mandat : client.getMandats()) {
+            for (Compte compteCourant : compteRepository.findCompteCourantByLogin(mandat)) {
+                balance = balance.add(compteCourant.getSolde());
+            }
+            for (Compte compteEpargne : compteRepository.findCompteEpargneByLogin(mandat)) {
+                balance = balance.add(compteEpargne.getSolde());
+            }
+        }
+        return balance;
     }
 
 }
