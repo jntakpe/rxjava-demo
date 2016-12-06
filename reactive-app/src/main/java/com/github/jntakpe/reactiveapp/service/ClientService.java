@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Publication des méthodes permettant la gestion des {@link com.github.jntakpe.reactiveapp.domain.Client}
@@ -39,7 +43,7 @@ public class ClientService {
      * @param login login du client
      * @return solde total
      */
-    public BigDecimal soldeTotalByLogin(String login) {
+    public BigDecimal soldeTotalByLogin(String login) throws ExecutionException, InterruptedException {
         LOGGER.info("Calcul du solde total du client {}", login);
         Client client;
         try {
@@ -47,9 +51,14 @@ public class ClientService {
         } catch (HttpClientErrorException e) {
             throw new ClientNotFoundException(String.format("Impossible de trouver le client %s", login));
         }
-        return client.getMandats().stream()
-                .map(m -> compteService.soldeTotalCompteCourantByMandat(m).add(compteService.soldeTotalCompteEpargneByMandat(m)))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        BigDecimal totalBalance = BigDecimal.ZERO;
+        for (String mandat : client.getMandats()) {
+            Future<BigDecimal> futureSoldeCC = executor.submit(() -> compteService.soldeTotalCompteCourantByMandat(mandat));
+            Future<BigDecimal> futureSoldeCE = executor.submit(() -> compteService.soldeTotalCompteEpargneByMandat(mandat));
+            totalBalance = totalBalance.add(futureSoldeCC.get()).add(futureSoldeCE.get());
+        }
+        return totalBalance;
     }
 
 }
