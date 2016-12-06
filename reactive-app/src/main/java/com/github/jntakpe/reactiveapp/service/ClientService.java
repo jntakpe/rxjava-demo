@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,13 +54,21 @@ public class ClientService {
             throw new ClientNotFoundException(String.format("Impossible de trouver le client %s", login));
         }
         ExecutorService executor = Executors.newFixedThreadPool(4);
-        BigDecimal totalBalance = BigDecimal.ZERO;
+        List<Future<BigDecimal>> futuresSoldes = new ArrayList<>();
         for (String mandat : client.getMandats()) {
-            Future<BigDecimal> futureSoldeCC = executor.submit(() -> compteService.soldeTotalCompteCourantByMandat(mandat));
-            Future<BigDecimal> futureSoldeCE = executor.submit(() -> compteService.soldeTotalCompteEpargneByMandat(mandat));
-            totalBalance = totalBalance.add(futureSoldeCC.get()).add(futureSoldeCE.get());
+            futuresSoldes.add(executor.submit(() -> compteService.soldeTotalCompteCourantByMandat(mandat)));
+            futuresSoldes.add(executor.submit(() -> compteService.soldeTotalCompteEpargneByMandat(mandat)));
         }
-        return totalBalance;
+        return futuresSoldes.stream()
+                .map(f -> {
+                    try {
+                        return f.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                    return BigDecimal.ZERO;
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
 }

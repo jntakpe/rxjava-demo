@@ -69,8 +69,9 @@ public class ClientServiceTest {
         assertThat(clientService.soldeTotalByLogin(COUPLE_ROOTS_USER)).isNotNull();
         stopWatch.stop();
         assertThat(Duration.ofMillis(stopWatch.getTime())).isLessThan(Duration.ofMillis(500));
+        System.out.println("///////////////////////////////////////////////////////////////");
+        System.out.println(String.format("Temps total calcul solde : %s ms", stopWatch.getTime()));
+        System.out.println("///////////////////////////////////////////////////////////////");
     }
-
-
 
 }
