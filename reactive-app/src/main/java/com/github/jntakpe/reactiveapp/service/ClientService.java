@@ -1,10 +1,8 @@
 package com.github.jntakpe.reactiveapp.service;
 
 import com.github.jntakpe.reactiveapp.domain.Client;
-import com.github.jntakpe.reactiveapp.domain.Compte;
 import com.github.jntakpe.reactiveapp.exceptions.ClientNotFoundException;
 import com.github.jntakpe.reactiveapp.repository.ClientRepository;
-import com.github.jntakpe.reactiveapp.repository.CompteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +23,12 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
 
-    private final CompteRepository compteRepository;
+    private final CompteService compteService;
 
     @Autowired
-    public ClientService(ClientRepository clientRepository, CompteRepository compteRepository) {
+    public ClientService(ClientRepository clientRepository, CompteService compteService) {
         this.clientRepository = clientRepository;
-        this.compteRepository = compteRepository;
+        this.compteService = compteService;
     }
 
     /**
@@ -49,16 +47,9 @@ public class ClientService {
         } catch (HttpClientErrorException e) {
             throw new ClientNotFoundException(String.format("Impossible de trouver le client %s", login));
         }
-        BigDecimal balance = BigDecimal.ZERO;
-        for (String mandat : client.getMandats()) {
-            for (Compte compteCourant : compteRepository.findCompteCourantByLogin(mandat)) {
-                balance = balance.add(compteCourant.getSolde());
-            }
-            for (Compte compteEpargne : compteRepository.findCompteEpargneByLogin(mandat)) {
-                balance = balance.add(compteEpargne.getSolde());
-            }
-        }
-        return balance;
+        return client.getMandats().stream()
+                .map(m -> compteService.soldeTotalCompteCourantByMandat(m).add(compteService.soldeTotalCompteEpargneByMandat(m)))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
 }
