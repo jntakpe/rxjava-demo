@@ -12,10 +12,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Publication des méthodes permettant la gestion des {@link com.github.jntakpe.reactiveapp.domain.Client}
@@ -53,22 +52,15 @@ public class ClientService {
         } catch (HttpClientErrorException e) {
             throw new ClientNotFoundException(String.format("Impossible de trouver le client %s", login));
         }
-        ExecutorService executor = Executors.newFixedThreadPool(4);
-        List<Future<BigDecimal>> futuresSoldes = new ArrayList<>();
-        for (String mandat : client.getMandats()) {
-            futuresSoldes.add(executor.submit(() -> compteService.soldeTotalCompteCourantByMandat(mandat)));
-            futuresSoldes.add(executor.submit(() -> compteService.soldeTotalCompteEpargneByMandat(mandat)));
-        }
-        return futuresSoldes.stream()
-                .map(f -> {
-                    try {
-                        return f.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                    return BigDecimal.ZERO;
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<CompletableFuture<BigDecimal>> fs = new ArrayList<>();
+        client.getMandats().forEach(m -> {
+            fs.add(CompletableFuture.supplyAsync(() -> compteService.soldeTotalCompteCourantByMandat(m)));
+            fs.add(CompletableFuture.supplyAsync(() -> compteService.soldeTotalCompteEpargneByMandat(m)));
+        });
+        return CompletableFuture.allOf(fs.toArray(new CompletableFuture[fs.size()]))
+                .thenApply(f -> fs.stream().map(CompletableFuture::join).collect(Collectors.toList()))
+                .thenApply(soldes -> soldes.stream().reduce(BigDecimal.ZERO, BigDecimal::add))
+                .get();
     }
 
 }
