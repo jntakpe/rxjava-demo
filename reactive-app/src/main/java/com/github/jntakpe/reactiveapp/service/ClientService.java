@@ -3,6 +3,8 @@ package com.github.jntakpe.reactiveapp.service;
 import com.github.jntakpe.reactiveapp.domain.Client;
 import com.github.jntakpe.reactiveapp.exceptions.ClientNotFoundException;
 import com.github.jntakpe.reactiveapp.repository.ClientRepository;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 /**
  * Publication des méthodes permettant la gestion des {@link com.github.jntakpe.reactiveapp.domain.Client}
@@ -52,15 +51,19 @@ public class ClientService {
         } catch (HttpClientErrorException e) {
             throw new ClientNotFoundException(String.format("Impossible de trouver le client %s", login));
         }
-        List<CompletableFuture<BigDecimal>> fs = new ArrayList<>();
-        client.getMandats().forEach(m -> {
-            fs.add(CompletableFuture.supplyAsync(() -> compteService.soldeTotalCompteCourantByMandat(m)));
-            fs.add(CompletableFuture.supplyAsync(() -> compteService.soldeTotalCompteEpargneByMandat(m)));
-        });
-        return CompletableFuture.allOf(fs.toArray(new CompletableFuture[fs.size()]))
-                .thenApply(f -> fs.stream().map(CompletableFuture::join).collect(Collectors.toList()))
-                .thenApply(soldes -> soldes.stream().reduce(BigDecimal.ZERO, BigDecimal::add))
-                .get();
+        return Observable.fromArray(client.getMandats().toArray(new String[client.getMandats().size()]))
+                .flatMap(m -> Observable.just(m)
+                        .subscribeOn(Schedulers.computation()))
+                .flatMap(this::soldeTotalByMandat)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .blockingGet();
+    }
+
+    private Observable<BigDecimal> soldeTotalByMandat(String mandat) {
+        Supplier<BigDecimal> soldeCe = () -> compteService.soldeTotalCompteEpargneByMandat(mandat);
+        Supplier<BigDecimal> soldeCc = () -> compteService.soldeTotalCompteCourantByMandat(mandat);
+        return Observable.just(soldeCe, soldeCc)
+                .flatMap(idx -> Observable.just(idx).subscribeOn(Schedulers.computation()).map(Supplier::get));
     }
 
 }
