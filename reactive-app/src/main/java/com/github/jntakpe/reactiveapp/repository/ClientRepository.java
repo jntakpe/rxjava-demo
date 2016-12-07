@@ -1,23 +1,20 @@
 package com.github.jntakpe.reactiveapp.repository;
 
 import com.github.jntakpe.reactiveapp.domain.Client;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * Repository permettant d'accéder aux informations des {@link Client}
  *
  * @author jntakpe
  */
-@Repository
-public class ClientRepository {
+@FeignClient(name = "client-repository", url = "${mock-server.url}")
+public interface ClientRepository {
 
-    @Value("${mock-server.url}")
-    private String mockServerUrl;
-
-    public Client findByLogin(String login) {
-        return new RestTemplate().getForObject(mockServerUrl + "/clients/" + login, Client.class);
-    }
+    @RequestMapping(value = "/clients/{login}", method = RequestMethod.GET)
+    Client findByLogin(@PathVariable("login") String login);
 
 }

@@ -1,6 +1,6 @@
 package com.github.jntakpe.reactiveapp.service;
 
-import com.github.jntakpe.reactiveapp.exceptions.ClientNotFoundException;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +32,7 @@ public class ClientServiceTest {
     @Autowired
     private ClientService clientService;
 
-    @Test(expected = ClientNotFoundException.class)
+    @Test(expected = HystrixRuntimeException.class)
     public void soldeTotalByLogin_shouldFailCuzUnknownUser() throws Exception {
         clientService.soldeTotalByLogin("unknownuser");
         fail("should have failed at this point");

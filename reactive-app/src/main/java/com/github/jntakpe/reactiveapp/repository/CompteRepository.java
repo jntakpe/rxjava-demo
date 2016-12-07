@@ -3,11 +3,10 @@ package com.github.jntakpe.reactiveapp.repository;
 import com.github.jntakpe.reactiveapp.domain.Compte;
 import com.github.jntakpe.reactiveapp.domain.CompteCourant;
 import com.github.jntakpe.reactiveapp.domain.CompteEpargne;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Set;
 
@@ -16,23 +15,12 @@ import java.util.Set;
  *
  * @author jntakpe
  */
-@Repository
-public class CompteRepository {
+@FeignClient(name = "compte-repository", url = "${mock-server.url}")
+public interface CompteRepository {
 
-    @Value("${mock-server.url}")
-    private String mockServerUrl;
+    @RequestMapping(value = "/comptecourant/{login}", method = RequestMethod.GET)
+    Set<CompteCourant> findCompteCourantByLogin(@PathVariable("login") String login);
 
-    public Set<CompteCourant> findCompteCourantByLogin(String login) {
-        return new RestTemplate().exchange(mockServerUrl + "/comptecourant/" + login, HttpMethod.GET, null,
-                new ParameterizedTypeReference<Set<CompteCourant>>() {
-                })
-                .getBody();
-    }
-
-    public Set<CompteEpargne> findCompteEpargneByLogin(String login) {
-        return new RestTemplate().exchange(mockServerUrl + "/compteepargne/" + login, HttpMethod.GET, null,
-                new ParameterizedTypeReference<Set<CompteEpargne>>() {
-                })
-                .getBody();
-    }
+    @RequestMapping(value = "/compteepargne/{login}", method = RequestMethod.GET)
+    Set<CompteEpargne> findCompteEpargneByLogin(@PathVariable("login") String login);
 }
