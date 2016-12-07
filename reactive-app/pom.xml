@@ -18,7 +18,6 @@
         <spring-boot.version>1.4.1.RELEASE</spring-boot.version>
         <spring-cloud.version>Camden.SR2</spring-cloud.version>
         <commons-lang3.version>3.4</commons-lang3.version>
-        <rxjava.version>2.0.1</rxjava.version>
         <assertj-core.version>3.6.1</assertj-core.version>
     </properties>
 
@@ -51,9 +50,8 @@
             <artifactId>spring-cloud-starter-feign</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.reactivex.rxjava2</groupId>
+            <groupId>io.reactivex</groupId>
             <artifactId>rxjava</artifactId>
-            <version>${rxjava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

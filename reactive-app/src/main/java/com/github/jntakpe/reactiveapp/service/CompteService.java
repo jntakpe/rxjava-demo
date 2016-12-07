@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rx.Observable;
 
 import java.math.BigDecimal;
 
@@ -26,18 +27,16 @@ public class CompteService {
         this.compteRepository = compteRepository;
     }
 
-    public BigDecimal soldeTotalCompteCourantByMandat(String mandat) {
+    public Observable<BigDecimal> soldeTotalCompteCourantByMandat(String mandat) {
         LOGGER.info("Calcul du solde des comptes courant pour le mandat {}", mandat);
-        return compteRepository.findCompteCourantByLogin(mandat).stream()
-                .map(Compte::getSolde)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return compteRepository.findCompteCourantByLogin(mandat)
+                .map(accs -> accs.stream().map(Compte::getSolde).reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
-    public BigDecimal soldeTotalCompteEpargneByMandat(String mandat) {
+    public Observable<BigDecimal> soldeTotalCompteEpargneByMandat(String mandat) {
         LOGGER.info("Calcul du solde des comptes épargne pour le mandat {}", mandat);
-        return compteRepository.findCompteEpargneByLogin(mandat).stream()
-                .map(Compte::getSolde)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return compteRepository.findCompteEpargneByLogin(mandat)
+                .map(accs -> accs.stream().map(Compte::getSolde).reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import rx.Observable;
 
 import java.util.Set;
 
@@ -19,8 +20,8 @@ import java.util.Set;
 public interface CompteRepository {
 
     @RequestMapping(value = "/comptecourant/{login}", method = RequestMethod.GET)
-    Set<CompteCourant> findCompteCourantByLogin(@PathVariable("login") String login);
+    Observable<Set<CompteCourant>> findCompteCourantByLogin(@PathVariable("login") String login);
 
     @RequestMapping(value = "/compteepargne/{login}", method = RequestMethod.GET)
-    Set<CompteEpargne> findCompteEpargneByLogin(@PathVariable("login") String login);
+    Observable<Set<CompteEpargne>> findCompteEpargneByLogin(@PathVariable("login") String login);
 }

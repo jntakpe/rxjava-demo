@@ -5,6 +5,7 @@ import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import rx.Observable;
 
 /**
  * Repository permettant d'accéder aux informations des {@link Client}
@@ -15,6 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface ClientRepository {
 
     @RequestMapping(value = "/clients/{login}", method = RequestMethod.GET)
-    Client findByLogin(@PathVariable("login") String login);
+    Observable<Client> findByLogin(@PathVariable("login") String login);
 
 }
